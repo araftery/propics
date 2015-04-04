@@ -1,0 +1,209 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="{% static "poster/css/base.css" %}"  />
+
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  <script src="{% static 'poster/js/jquery.Jcrop.js' %}"></script>
+  <link href="{% static 'poster/css/jquery.Jcrop.min.css' %}" rel="stylesheet">
+
+    <link href="http://netdna.bootstrapcdn.com/bootswatch/3.0.3/yeti/bootstrap.min.css" rel="stylesheet">
+
+
+    <title>{% block title %}UHC Day Virtual Photo Booth{% endblock %}</title>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+
+
+<script language="javascript">
+
+	function updateCoords(c)
+	{
+		jQuery('#x').val(c.x);
+		jQuery('#y').val(c.y);
+		jQuery('#w').val(c.w);
+		jQuery('#h').val(c.h);
+	};
+
+	function bind_it()
+	{
+		$('form img:not(.keep)').Jcrop({
+			minSize: [200, 200],
+			aspectRatio: 1.0,
+			onSelect: updateCoords,
+			setSelect:   [0, 0, 200, 200],
+		});
+	}
+
+
+	$(document).ready(function() {
+		$("#id_image").change(function(e) {
+			$('img:not(.keep)').remove();
+			$('.jcrop-holder').remove();
+		    for (var i = 0; i < e.originalEvent.srcElement.files.length; i++) {
+		        var file = e.originalEvent.srcElement.files[i];
+
+		        var img = document.createElement("img");
+
+		        img.setAttribute("id", "crop");
+		        var reader = new FileReader();
+		        reader.onloadend = function() {
+		            img.src = reader.result;
+		        }
+		        reader.readAsDataURL(file);
+
+				$("#image_holder").html(img);
+		    }
+
+		    setTimeout(bind_it, 200);
+		});
+	});
+
+</script>
+    
+</head>
+
+<body>
+
+<form name="ignore" class="hidden">
+    <input type="hidden" id="page_is_back" name="page_is_back" value="0" />
+</form>
+
+<script>
+    var back_bit = document.getElementById('page_is_back');
+    function mark_page_back() {
+        back_bit.value = '1';
+    }
+    if (back_bit.value == '1') {
+        window.location.reload();
+    }
+    else
+    {
+        mark_page_back();
+    }
+</script>
+
+
+<div class="container">
+<div class="head">
+    <h1>Universal Health Coverage Day </h1>
+    <h2>Virtual Photo Booth</h2>
+</div>
+
+<div>
+    <table class="examples-table">
+        <tr>
+            <td><img class="keep" src="{% static 'poster/img/single_example.jpg' %}" /></td>
+            <td><img class="keep" src="{% static 'poster/img/multiple_example.jpg' %}" /></td>
+        </tr>
+    </table>
+</div>
+
+<p>
+Show your support for #HealthForAll by creating a custom UHC Day picture with our virtual photo booth! Here's how:
+</p>
+
+<p>
+    <h4><strong>ON YOUR COMPUTER:</strong></h4>
+    <ol>
+        <li>Select your photo booth template. </li>
+        <li>Upload a picture from your computer. </li>
+        <li>Crop your picture by dragging the corners of the selection box.</li>
+        <li>Click "Submit" and save your new photo booth picture.</li>
+        <li>Share your picture on social media. Start your caption with "#HealthForAll because..." and tell us why you support universal health coverage. Be sure to tag @UHC_Day and encourage others to create pictures of their own (e.g., by tagging other partners, friends or members of your organization’s network).</li>
+    </ol>
+</p>
+
+<p>
+    <h4><strong>ON YOUR PHONE:</strong></h4>
+    <h5>Note: the photo booth tool works best on computer.</h5  >
+    <ol>
+        <li>Select your photo booth template.</li>
+        <li>Choose an existing photo.</li>
+        <li>To crop your picture, remember to zoom out before dragging the corners of the selection box. If your phone has a touch screen, drag one finger across the screen to expand the selection box.</li>
+        <li>Click "Submit" and save your new photo booth picture.</li>
+        <li>Share your picture on social media. Start your caption with "#HealthForAll because..." and tell us why you support universal health coverage. Be sure to tag @UHC_Day and encourage others to create pictures of their own (e.g., by tagging other partners, friends or members of your organization’s network).</li>
+    </ol>
+</p>
+
+{% for error in form.image.errors %}
+	<div class="alert alert-danger">{{ error }}</div>
+{% endfor %}
+<form method="POST" enctype="multipart/form-data" class="form-container" target="_blank">
+	{% csrf_token %}
+    <input type="hidden" id="x" name="x" />
+    <input type="hidden" id="y" name="y" />
+    <input type="hidden" id="w" name="w" />
+    <input type="hidden" id="h" name="h" />
+
+    <div class="form-group">
+    <table class="overlay-choice">
+        <tr>
+            <td><img class="keep" src="{% static 'poster/img/single_example.jpg' %}" width="150" /></td>
+            <td><img class="keep" src="{% static 'poster/img/multiple_example.jpg' %}" width="150" /></td>
+        </tr>
+        <tr>
+            <td><input type="radio" name="overlay_choice" value="single" checked></td>
+            <td><input type="radio" name="overlay_choice" value="multiple"></td>
+        </tr>
+    </table>
+    </div>
+	<div class="form-group">
+		<label for="id_image">Image:</label>
+		<input id="id_image" name="image" type="file" />
+    </div>
+
+    <div id="image_holder"></div>
+
+<div class="btn-container">
+	<button type="submit" class="btn submit-btn">Submit</button>
+</div>
+</form>
+      
+    </div><!-- /.container -->
+
+<style>
+.head
+{
+    text-align:center;
+    margin:auto;
+}
+
+.head img
+{
+    margin:20px 0;
+}
+
+.submit-btn
+{
+    border: #ffcb09 solid 3px;
+    color:black;
+    background: transparent;
+    margin-bottom:20px;
+}
+
+.submit-btn:hover, .submit-btn:active, .submit-btn:visited
+{
+    border: #ffcb09 solid 3px;
+    background: #ffcb09;
+    color:black;
+}
+</style>
+  </body>
+</html>
